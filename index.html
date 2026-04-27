@@ -3,225 +3,216 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Benchmark Budget</title>
+<title>Allocation Tool</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
-    background: #f5f4f0;
-    color: #2c2c2a;
+    font-family: 'DM Sans', sans-serif;
+    background: #0b0f1a;
+    color: #dde3f0;
     min-height: 100vh;
-    padding: 20px 16px 48px;
+    padding: 24px 16px 56px;
   }
 
   .container { max-width: 520px; margin: 0 auto; }
 
-  .section-label {
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.07em;
-    text-transform: uppercase;
-    color: #888780;
-    margin-bottom: 10px;
-    margin-top: 24px;
-  }
-  .section-label:first-of-type { margin-top: 0; }
+  .page-title { font-size: 18px; font-weight: 600; color: #dde3f0; margin-bottom: 2px; }
+  .page-sub { font-size: 12px; color: #3a4260; margin-bottom: 24px; }
 
-  .breakdown-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 4px; }
+  .section-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #3a4260;
+    margin-bottom: 10px;
+    margin-top: 28px;
+  }
+
+  /* INCOME */
+  .income-card {
+    background: #111827;
+    border: 0.5px solid #1e2a42;
+    border-radius: 12px;
+    padding: 16px 18px;
+  }
+  .income-card label {
+    font-size: 10px; color: #3a4260; display: block;
+    margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.08em;
+  }
+  .income-input-row { display: flex; align-items: baseline; gap: 6px; }
+  .peso { font-size: 20px; color: #3a4260; }
+  #income {
+    font-size: 32px; font-weight: 700; width: 200px;
+    border: none; outline: none; background: transparent;
+    color: #dde3f0; letter-spacing: -0.5px;
+  }
+  .per-label { font-size: 12px; color: #3a4260; }
+
+  /* BREAKDOWN CARDS */
+  .breakdown-list { display: flex; flex-direction: column; gap: 6px; }
 
   .bcard {
-    background: #fff;
+    background: #111827;
     border-radius: 10px;
-    border: 0.5px solid #d3d1c7;
-    border-left-width: 4px;
-    padding: 14px 16px;
+    border: 0.5px solid #1e2a42;
+    border-left-width: 3px;
+    padding: 12px 14px;
+    transition: background 0.15s;
+  }
+  .bcard:hover { background: #151d30; }
+  .bcard.checked { background: #141c2e; border-color: #2a3a5c; }
+
+  .bcard-top {
     display: flex;
     align-items: center;
-    gap: 12px;
-  }
-
-  .bcard-info { flex: 1; min-width: 0; }
-
-  .bcard-label {
-    font-size: 15px;
-    font-weight: 600;
-    color: #2c2c2a;
-  }
-
-  .bcard-note {
-    font-size: 12px;
-    color: #888780;
-    margin-top: 2px;
-  }
-
-  .bcard-right { text-align: right; flex-shrink: 0; }
-
-  .bcard-amt {
-    font-size: 22px;
-    font-weight: 700;
-    color: #2c2c2a;
-    line-height: 1.1;
-  }
-
-  .bcard-pct {
-    font-size: 12px;
-    color: #888780;
-    margin-top: 2px;
+    gap: 10px;
   }
 
   .bcard-check {
-    flex-shrink: 0;
-    width: 20px;
-    height: 20px;
-    accent-color: #2c2c2a;
-    cursor: pointer;
+    flex-shrink: 0; width: 18px; height: 18px;
+    cursor: pointer; accent-color: #6b8cff;
   }
 
-  .total-box {
-    background: #2c2c2a;
+  .bcard-info { flex: 1; min-width: 0; }
+  .bcard-label { font-size: 14px; font-weight: 500; color: #dde3f0; }
+  .bcard-note { font-size: 11px; color: #3a4260; margin-top: 2px; }
+
+  .bcard-right { text-align: right; flex-shrink: 0; }
+  .bcard-amt { font-size: 20px; font-weight: 700; color: #dde3f0; line-height: 1.1; letter-spacing: -0.3px; }
+  .bcard-pct { font-size: 11px; color: #3a4260; margin-top: 2px; }
+
+  /* ACCOUNT SELECTOR */
+  .bcard-account {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 0.5px solid #1e2a42;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .acc-label { font-size: 11px; color: #3a4260; flex-shrink: 0; }
+  .acc-pills { display: flex; gap: 6px; flex-wrap: wrap; }
+
+  .acc-pill {
+    font-size: 11px;
+    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: 20px;
+    border: 0.5px solid #1e2a42;
+    background: #0b0f1a;
+    color: #5a6888;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+  .acc-pill:hover { border-color: #3a4260; color: #dde3f0; }
+  .acc-pill.active-cash     { background: #1a2a1a; border-color: #4ecdc4; color: #4ecdc4; }
+  .acc-pill.active-gotyme   { background: #1a1a2e; border-color: #6b8cff; color: #6b8cff; }
+  .acc-pill.active-bpi      { background: #2a1a1a; border-color: #ff6b6b; color: #ff6b6b; }
+
+  /* ACCOUNT TOTALS */
+  .account-totals { display: flex; flex-direction: column; gap: 6px; }
+
+  .acc-total-card {
+    background: #111827;
+    border: 0.5px solid #1e2a42;
     border-radius: 10px;
     padding: 14px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .acc-total-left {}
+  .acc-total-name { font-size: 13px; font-weight: 500; }
+  .acc-total-cats { font-size: 10px; color: #3a4260; margin-top: 3px; }
+  .acc-total-amt  { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
+
+  /* SEND TO TOGGLE */
+  .sendto-toggle {
+    width: 100%; background: transparent; border: none;
+    padding: 0; font-size: 10px; font-weight: 700;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: #3a4260; text-align: left; cursor: pointer;
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 10px; margin-top: 28px; font-family: inherit;
+    transition: color 0.15s;
+  }
+  .sendto-toggle:hover { color: #5a6888; }
+  .sendto-arrow { font-size: 9px; transition: transform 0.2s; display: inline-block; }
+  .sendto-arrow.open { transform: rotate(180deg); }
+  .sendto-body { display: none; }
+  .sendto-body.open { display: block; }
+    background: #111827;
+    border: 0.5px solid #1e2a42;
+    border-radius: 12px;
+    padding: 16px 18px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-top: 8px;
-    margin-bottom: 4px;
   }
+  .total-box-label { font-size: 12px; color: #5a6888; }
+  .total-box-sub { font-size: 10px; color: #2a3450; margin-top: 2px; }
+  #selected-total { font-size: 28px; font-weight: 700; color: #6b8cff; letter-spacing: -0.5px; }
 
-  .total-box-label { font-size: 13px; color: #b4b2a9; }
-  .total-box-sub { font-size: 11px; color: #5f5e5a; margin-top: 2px; }
-  #selected-total { font-size: 26px; font-weight: 700; color: #fff; }
-
+  /* SETTINGS */
   .settings-toggle {
-    width: 100%;
-    background: none;
-    border: 0.5px solid #d3d1c7;
-    border-radius: 8px;
-    padding: 10px 14px;
-    font-size: 13px;
-    color: #888780;
-    text-align: left;
-    cursor: pointer;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 24px;
-    font-family: inherit;
+    width: 100%; background: #0e1422; border: 0.5px solid #1e2a42;
+    border-radius: 8px; padding: 11px 16px; font-size: 12px;
+    color: #3a4260; text-align: left; cursor: pointer;
+    display: flex; justify-content: space-between; align-items: center;
+    margin-top: 28px; font-family: inherit; transition: background 0.15s;
   }
-
-  .settings-toggle:hover { background: #fff; }
-  .arrow { font-size: 11px; transition: transform 0.2s; display: inline-block; }
+  .settings-toggle:hover { background: #111827; color: #5a6888; }
+  .arrow { font-size: 10px; transition: transform 0.2s; display: inline-block; }
   .arrow.open { transform: rotate(180deg); }
-
-  .settings-body { display: none; padding-top: 4px; }
+  .settings-body { display: none; }
   .settings-body.open { display: block; }
 
-  .income-card {
-    background: #fff;
-    border: 0.5px solid #d3d1c7;
-    border-radius: 10px;
-    padding: 14px 16px;
-    margin-bottom: 16px;
-  }
-
-  .income-card label {
-    font-size: 11px;
-    color: #888780;
-    display: block;
-    margin-bottom: 6px;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-
-  .income-input-row { display: flex; align-items: center; gap: 8px; }
-  .peso { font-size: 16px; color: #888780; }
-
-  #income {
-    font-size: 26px;
-    font-weight: 600;
-    width: 170px;
-    border: none;
-    outline: none;
-    background: transparent;
-    color: #2c2c2a;
-  }
-
-  .per-label { font-size: 13px; color: #888780; }
-
-  .rows { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
-
+  /* ROWS */
+  .rows { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
   .row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background: #fff;
-    border: 0.5px solid #d3d1c7;
-    border-radius: 8px;
-    padding: 10px 14px;
+    display: flex; align-items: center; gap: 10px;
+    background: #111827; border: 0.5px solid #1e2a42;
+    border-radius: 8px; padding: 10px 14px;
   }
-
-  .dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
   .row-info { flex: 1; min-width: 0; }
-
-  .row-label {
-    font-size: 13px;
-    font-weight: 500;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
+  .row-label { font-size: 13px; font-weight: 500; color: #dde3f0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .pct-wrap { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
-
   .pct-input {
-    width: 50px;
-    font-size: 14px;
-    font-weight: 500;
-    text-align: right;
-    color: #2c2c2a;
-    border: 0.5px solid #b4b2a9;
-    border-radius: 6px;
-    padding: 4px 6px;
-    background: #f5f4f0;
-    outline: none;
-    font-family: inherit;
+    width: 50px; font-size: 14px; font-weight: 500; text-align: right;
+    color: #dde3f0; border: 0.5px solid #1e2a42; border-radius: 6px;
+    padding: 5px 7px; background: #0b0f1a; outline: none;
+    font-family: inherit; transition: border-color 0.15s;
   }
+  .pct-input:focus { border-color: #3a4260; }
+  .pct-sign { font-size: 12px; color: #3a4260; }
+  .amt-col { min-width: 72px; text-align: right; font-size: 13px; font-weight: 500; color: #5a6888; flex-shrink: 0; }
 
-  .pct-input:focus { border-color: #888780; }
-  .pct-sign { font-size: 12px; color: #888780; }
-  .amt-col { min-width: 72px; text-align: right; font-size: 13px; font-weight: 500; flex-shrink: 0; }
+  /* BAR */
+  .bar-section { background: #111827; border: 0.5px solid #1e2a42; border-radius: 10px; padding: 14px 16px; }
+  .bar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .bar-label { font-size: 11px; color: #3a4260; }
+  #total-pct { font-size: 13px; font-weight: 600; color: #dde3f0; }
+  .bar-track { height: 4px; background: #1e2a42; border-radius: 2px; overflow: hidden; }
+  #bar { height: 100%; width: 100%; border-radius: 2px; background: #6b8cff; transition: width 0.2s, background 0.2s; }
+  #bar-warning { display: none; margin-top: 8px; font-size: 11px; }
 
-  .bar-section {
-    background: #fff;
-    border: 0.5px solid #d3d1c7;
-    border-radius: 10px;
-    padding: 14px 16px;
-  }
-
-  .bar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-  .bar-label { font-size: 12px; color: #888780; }
-  #total-pct { font-size: 14px; font-weight: 600; }
-
-  .bar-track { height: 7px; background: #f1efe8; border-radius: 4px; overflow: hidden; }
-
-  #bar {
-    height: 100%;
-    width: 100%;
-    border-radius: 4px;
-    background: #1D9E75;
-    transition: width 0.2s, background 0.2s;
-  }
-
-  #bar-warning { display: none; margin-top: 7px; font-size: 11px; }
-
-  .footer { font-size: 11px; color: #b4b2a9; text-align: center; margin-top: 28px; }
+  .footer { font-size: 11px; color: #1e2a42; text-align: center; margin-top: 32px; }
 </style>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
 <div class="container">
 
-  <p class="section-label">Income</p>
+  <p class="page-title">Allocation Tool</p>
+  <p class="page-sub">Distribute your money before transferring.</p>
+
+  <p class="section-label" style="margin-top:0;">Income</p>
   <div class="income-card">
     <label>Benchmark income</label>
     <div class="income-input-row">
@@ -231,7 +222,13 @@
     </div>
   </div>
 
-  <p class="section-label">Breakdown</p>
+  <button class="sendto-toggle" onclick="toggleSendTo()">
+    <span>Breakdown</span>
+    <span style="display:flex;align-items:center;gap:6px;">
+      <span id="sendto-status" style="font-size:9px;color:#3a4260;letter-spacing:0.05em;">show send-to</span>
+      <span class="sendto-arrow" id="sendto-arrow">▼</span>
+    </span>
+  </button>
   <div class="breakdown-list" id="breakdown"></div>
 
   <div class="total-box">
@@ -242,16 +239,17 @@
     <div id="selected-total">₱0</div>
   </div>
 
+  <p class="section-label">By account</p>
+  <div class="account-totals" id="account-totals"></div>
+
   <button class="settings-toggle" onclick="toggleSettings()">
-    <span>Settings — income &amp; percentages</span>
+    <span>Allocations — adjust percentages</span>
     <span class="arrow" id="arrow">▼</span>
   </button>
 
   <div class="settings-body" id="settings-body">
-
-    <p class="section-label" style="margin-top:20px;">Allocations</p>
+    <p class="section-label" style="margin-top:20px;">Percentages</p>
     <div class="rows" id="rows"></div>
-
     <div class="bar-section">
       <div class="bar-header">
         <span class="bar-label">Total allocated</span>
@@ -260,7 +258,6 @@
       <div class="bar-track"><div id="bar"></div></div>
       <div id="bar-warning"></div>
     </div>
-
   </div>
 
   <p class="footer">Open in any browser — no internet needed.</p>
@@ -268,12 +265,19 @@
 
 <script>
 const cats = [
-  { id: 'debt',      label: 'Debt repayment',   pct: 50, color: '#D85A30', note: 'Priority — pay off early' },
-  { id: 'emergency', label: 'Emergency fund',   pct: 20, color: '#EF9F27', note: 'Target: 3 months expenses' },
-  { id: 'house',     label: 'House renovation', pct: 10, color: '#D4537E', note: 'Near-term goal' },
-  { id: 'family',    label: 'Family (future)',  pct: 8,  color: '#1D9E75', note: 'Long horizon' },
-  { id: 'dream',     label: 'Dream (personal)', pct: 7,  color: '#7F77DD', note: 'Type R / Corolla RS' },
-  { id: 'leisure',   label: 'Leisure',          pct: 5,  color: '#378ADD', note: 'Enjoy the grind' },
+  { id: 'debt',      label: 'Debt repayment',   pct: 45, color: '#ff6b6b', note: 'Priority — pay off early',      account: 'bpi'    },
+  { id: 'savings',   label: 'Savings (buffer)',  pct: 15, color: '#6b8cff', note: 'Liquid buffer for daily needs', account: 'gotyme' },
+  { id: 'emergency', label: 'Emergency fund',   pct: 10, color: '#ffd166', note: 'Target: 3 months expenses',     account: 'gotyme' },
+  { id: 'house',     label: 'House renovation', pct: 10, color: '#c77dff', note: 'Near-term goal',                account: 'gotyme' },
+  { id: 'family',    label: 'Family (future)',  pct: 8,  color: '#4ecdc4', note: 'Long horizon',                  account: 'gotyme' },
+  { id: 'dream',     label: 'Dream (personal)', pct: 7,  color: '#ff9f43', note: 'Type R / Corolla RS',           account: 'gotyme' },
+  { id: 'leisure',   label: 'Leisure',          pct: 5,  color: '#a8e063', note: 'Enjoy the grind',               account: 'gotyme' },
+];
+
+const accounts = [
+  { id: 'cash',   label: 'Cash Account', color: '#4ecdc4' },
+  { id: 'gotyme', label: 'GoTyme',       color: '#6b8cff' },
+  { id: 'bpi',    label: 'BPI',          color: '#ff6b6b' },
 ];
 
 function buildBreakdown() {
@@ -282,16 +286,72 @@ function buildBreakdown() {
     const card = document.createElement('div');
     card.className = 'bcard';
     card.style.borderLeftColor = cat.color;
+    card.id = 'bcard-' + cat.id;
+
+    const pillsHtml = accounts.map(acc =>
+      `<button class="acc-pill" id="pill-${cat.id}-${acc.id}" onclick="assignAccount('${cat.id}','${acc.id}')">${acc.label}</button>`
+    ).join('');
+
     card.innerHTML = `
-      <input type="checkbox" class="bcard-check" id="chk-${cat.id}" onchange="updateSelectedTotal()" />
-      <div class="bcard-info">
-        <div class="bcard-label">${cat.label}</div>
-        <div class="bcard-note">${cat.note}</div>
+      <div class="bcard-top">
+        <input type="checkbox" class="bcard-check" id="chk-${cat.id}" onchange="onCheck('${cat.id}')" />
+        <div class="bcard-info">
+          <div class="bcard-label">${cat.label}</div>
+          <div class="bcard-note">${cat.note}</div>
+        </div>
+        <div class="bcard-right">
+          <div class="bcard-amt" id="bamt-${cat.id}">₱0</div>
+          <div class="bcard-pct" id="bpct-${cat.id}">0%</div>
+        </div>
       </div>
-      <div class="bcard-right">
-        <div class="bcard-amt" id="bamt-${cat.id}">₱0</div>
-        <div class="bcard-pct" id="bpct-${cat.id}">0%</div>
+      <div class="bcard-account sendto-body" id="sendto-${cat.id}">
+        <span class="acc-label">Send to</span>
+        <div class="acc-pills">${pillsHtml}</div>
       </div>
+    `;
+    container.appendChild(card);
+
+    accounts.forEach(acc => {
+      const pill = document.getElementById('pill-' + cat.id + '-' + acc.id);
+      if (cat.account === acc.id) pill.classList.add('active-' + acc.id);
+    });
+  });
+}
+
+function assignAccount(catId, accId) {
+  const cat = cats.find(c => c.id === catId);
+  if (cat.account === accId) {
+    cat.account = null;
+  } else {
+    cat.account = accId;
+  }
+  accounts.forEach(acc => {
+    const pill = document.getElementById('pill-' + catId + '-' + acc.id);
+    pill.className = 'acc-pill';
+    if (cat.account === acc.id) pill.classList.add('active-' + acc.id);
+  });
+  renderAccountTotals();
+}
+
+function renderAccountTotals() {
+  const income = parseFloat(document.getElementById('income').value) || 0;
+  const container = document.getElementById('account-totals');
+  container.innerHTML = '';
+
+  accounts.forEach(acc => {
+    const assigned = cats.filter(c => c.account === acc.id);
+    const total = assigned.reduce((sum, c) => sum + Math.round(income * c.pct / 100), 0);
+    const catNames = assigned.length > 0 ? assigned.map(c => c.label).join(', ') : 'No categories assigned';
+
+    const card = document.createElement('div');
+    card.className = 'acc-total-card';
+    card.style.borderLeft = '3px solid ' + acc.color;
+    card.innerHTML = `
+      <div class="acc-total-left">
+        <div class="acc-total-name" style="color:${acc.color}">${acc.label}</div>
+        <div class="acc-total-cats">${catNames}</div>
+      </div>
+      <div class="acc-total-amt" style="color:${acc.color}">₱${total.toLocaleString()}</div>
     `;
     container.appendChild(card);
   });
@@ -304,9 +364,7 @@ function buildRows() {
     row.className = 'row';
     row.innerHTML = `
       <div class="dot" style="background:${cat.color}"></div>
-      <div class="row-info">
-        <div class="row-label">${cat.label}</div>
-      </div>
+      <div class="row-info"><div class="row-label">${cat.label}</div></div>
       <div class="pct-wrap">
         <input class="pct-input" type="number" id="pct-${cat.id}" value="${cat.pct}" min="0" max="100" step="1" oninput="updatePct('${cat.id}',this.value)" />
         <span class="pct-sign">%</span>
@@ -315,6 +373,13 @@ function buildRows() {
     `;
     container.appendChild(row);
   });
+}
+
+function onCheck(id) {
+  const card = document.getElementById('bcard-' + id);
+  const chk  = document.getElementById('chk-' + id);
+  card.classList.toggle('checked', chk.checked);
+  updateSelectedTotal();
 }
 
 function updatePct(id, val) {
@@ -338,7 +403,7 @@ function recalc() {
   const sum = cats.reduce((a, c) => a + c.pct, 0);
 
   cats.forEach(cat => {
-    const amt = Math.round(income * cat.pct / 100);
+    const amt    = Math.round(income * cat.pct / 100);
     const amtEl  = document.getElementById('amt-'  + cat.id);
     const bamtEl = document.getElementById('bamt-' + cat.id);
     const bpctEl = document.getElementById('bpct-' + cat.id);
@@ -355,24 +420,31 @@ function recalc() {
   bar.style.width = Math.min(sum, 100) + '%';
 
   if (sum === 100) {
-    bar.style.background = '#1D9E75';
-    totalEl.style.color  = '#1D9E75';
-    warn.style.display   = 'none';
+    bar.style.background = '#6b8cff'; totalEl.style.color = '#6b8cff'; warn.style.display = 'none';
   } else if (sum < 100) {
-    bar.style.background = '#EF9F27';
-    totalEl.style.color  = '#BA7517';
-    warn.style.display   = 'block';
-    warn.style.color     = '#854F0B';
-    warn.textContent     = (100 - sum) + '% unallocated — adjust to reach 100%';
+    bar.style.background = '#ffd166'; totalEl.style.color = '#ffd166';
+    warn.style.display = 'block'; warn.style.color = '#ffd166';
+    warn.textContent = (100 - sum) + '% unallocated — adjust to reach 100%';
   } else {
-    bar.style.background = '#E24B4A';
-    totalEl.style.color  = '#A32D2D';
-    warn.style.display   = 'block';
-    warn.style.color     = '#A32D2D';
-    warn.textContent     = 'Over by ' + (sum - 100) + '% — reduce a category';
+    bar.style.background = '#ff6b6b'; totalEl.style.color = '#ff6b6b';
+    warn.style.display = 'block'; warn.style.color = '#ff6b6b';
+    warn.textContent = 'Over by ' + (sum - 100) + '% — reduce a category';
   }
 
   updateSelectedTotal();
+  renderAccountTotals();
+}
+
+function toggleSendTo() {
+  const isOpen = document.getElementById('sendto-' + cats[0].id).classList.contains('open');
+  cats.forEach(cat => {
+    const body = document.getElementById('sendto-' + cat.id);
+    if (body) body.classList.toggle('open', !isOpen);
+  });
+  const arrow  = document.getElementById('sendto-arrow');
+  const status = document.getElementById('sendto-status');
+  arrow.classList.toggle('open', !isOpen);
+  status.textContent = !isOpen ? 'hide send-to' : 'show send-to';
 }
 
 function toggleSettings() {
