@@ -1,10 +1,10 @@
-# Benchmark Budget Personal
+# Personal Allocation Tool
 
-A simple, offline-ready personal budget allocator built for quickly distributing Benchmark income across savings and debt categories before transferring to bank accounts.
+A simple, offline-ready personal budget allocator built for quickly distributing income across savings and debt categories before transferring to bank accounts.
 
 ## What it does
 
-- Enter your Benchmark income per paycheck
+- Enter your  income
 - See the peso amount for each category instantly
 - Check categories to get a running selected total — useful when transferring to multiple accounts
 - Adjust allocations anytime via the Settings panel
@@ -13,11 +13,12 @@ A simple, offline-ready personal budget allocator built for quickly distributing
 
 | Category | Default % | Purpose |
 |---|---|---|
-| Debt repayment | 50% | Priority — pay off early |
-| Emergency fund | 20% | Target: 3 months of expenses |
+| Debt repayment | 45% | Priority — pay off early |
+| Savings | 15% | Priority — pay off early |
+| Emergency fund | 10% | Target: 3 months of expenses |
 | House renovation | 10% | Near-term goal |
-| Family (future) | 8% | Long horizon savings |
-| Dream (personal) | 7% | Personal reward goal |
+| Family | 8% | Long horizon savings |
+| Dream  | 7% | Personal reward goal |
 | Leisure | 5% | Enjoy the grind |
 
 ## How to use
