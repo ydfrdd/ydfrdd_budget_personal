@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Benchmark Budget</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+    background: #f5f4f0;
+    color: #2c2c2a;
+    min-height: 100vh;
+    padding: 20px 16px 48px;
+  }
+
+  .container { max-width: 520px; margin: 0 auto; }
+
+  .section-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: #888780;
+    margin-bottom: 10px;
+    margin-top: 24px;
+  }
+  .section-label:first-of-type { margin-top: 0; }
+
+  .breakdown-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 4px; }
+
+  .bcard {
+    background: #fff;
+    border-radius: 10px;
+    border: 0.5px solid #d3d1c7;
+    border-left-width: 4px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .bcard-info { flex: 1; min-width: 0; }
+
+  .bcard-label {
+    font-size: 15px;
+    font-weight: 600;
+    color: #2c2c2a;
+  }
+
+  .bcard-note {
+    font-size: 12px;
+    color: #888780;
+    margin-top: 2px;
+  }
+
+  .bcard-right { text-align: right; flex-shrink: 0; }
+
+  .bcard-amt {
+    font-size: 22px;
+    font-weight: 700;
+    color: #2c2c2a;
+    line-height: 1.1;
+  }
+
+  .bcard-pct {
+    font-size: 12px;
+    color: #888780;
+    margin-top: 2px;
+  }
+
+  .bcard-check {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    accent-color: #2c2c2a;
+    cursor: pointer;
+  }
+
+  .total-box {
+    background: #2c2c2a;
+    border-radius: 10px;
+    padding: 14px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 8px;
+    margin-bottom: 4px;
+  }
+
+  .total-box-label { font-size: 13px; color: #b4b2a9; }
+  .total-box-sub { font-size: 11px; color: #5f5e5a; margin-top: 2px; }
+  #selected-total { font-size: 26px; font-weight: 700; color: #fff; }
+
+  .settings-toggle {
+    width: 100%;
+    background: none;
+    border: 0.5px solid #d3d1c7;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: #888780;
+    text-align: left;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 24px;
+    font-family: inherit;
+  }
+
+  .settings-toggle:hover { background: #fff; }
+  .arrow { font-size: 11px; transition: transform 0.2s; display: inline-block; }
+  .arrow.open { transform: rotate(180deg); }
+
+  .settings-body { display: none; padding-top: 4px; }
+  .settings-body.open { display: block; }
+
+  .income-card {
+    background: #fff;
+    border: 0.5px solid #d3d1c7;
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+  }
+
+  .income-card label {
+    font-size: 11px;
+    color: #888780;
+    display: block;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .income-input-row { display: flex; align-items: center; gap: 8px; }
+  .peso { font-size: 16px; color: #888780; }
+
+  #income {
+    font-size: 26px;
+    font-weight: 600;
+    width: 170px;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: #2c2c2a;
+  }
+
+  .per-label { font-size: 13px; color: #888780; }
+
+  .rows { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+
+  .row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #fff;
+    border: 0.5px solid #d3d1c7;
+    border-radius: 8px;
+    padding: 10px 14px;
+  }
+
+  .dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+  .row-info { flex: 1; min-width: 0; }
+
+  .row-label {
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .pct-wrap { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+
+  .pct-input {
+    width: 50px;
+    font-size: 14px;
+    font-weight: 500;
+    text-align: right;
+    color: #2c2c2a;
+    border: 0.5px solid #b4b2a9;
+    border-radius: 6px;
+    padding: 4px 6px;
+    background: #f5f4f0;
+    outline: none;
+    font-family: inherit;
+  }
+
+  .pct-input:focus { border-color: #888780; }
+  .pct-sign { font-size: 12px; color: #888780; }
+  .amt-col { min-width: 72px; text-align: right; font-size: 13px; font-weight: 500; flex-shrink: 0; }
+
+  .bar-section {
+    background: #fff;
+    border: 0.5px solid #d3d1c7;
+    border-radius: 10px;
+    padding: 14px 16px;
+  }
+
+  .bar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .bar-label { font-size: 12px; color: #888780; }
+  #total-pct { font-size: 14px; font-weight: 600; }
+
+  .bar-track { height: 7px; background: #f1efe8; border-radius: 4px; overflow: hidden; }
+
+  #bar {
+    height: 100%;
+    width: 100%;
+    border-radius: 4px;
+    background: #1D9E75;
+    transition: width 0.2s, background 0.2s;
+  }
+
+  #bar-warning { display: none; margin-top: 7px; font-size: 11px; }
+
+  .footer { font-size: 11px; color: #b4b2a9; text-align: center; margin-top: 28px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <p class="section-label">Income</p>
+  <div class="income-card">
+    <label>Benchmark income</label>
+    <div class="income-input-row">
+      <span class="peso">₱</span>
+      <input type="number" id="income" value="0" min="0" step="500" oninput="recalc()" />
+      <span class="per-label">/ paycheck</span>
+    </div>
+  </div>
+
+  <p class="section-label">Breakdown</p>
+  <div class="breakdown-list" id="breakdown"></div>
+
+  <div class="total-box">
+    <div>
+      <div class="total-box-label">Selected total</div>
+      <div class="total-box-sub">Check categories above to add up</div>
+    </div>
+    <div id="selected-total">₱0</div>
+  </div>
+
+  <button class="settings-toggle" onclick="toggleSettings()">
+    <span>Settings — income &amp; percentages</span>
+    <span class="arrow" id="arrow">▼</span>
+  </button>
+
+  <div class="settings-body" id="settings-body">
+
+    <p class="section-label" style="margin-top:20px;">Allocations</p>
+    <div class="rows" id="rows"></div>
+
+    <div class="bar-section">
+      <div class="bar-header">
+        <span class="bar-label">Total allocated</span>
+        <span id="total-pct">100%</span>
+      </div>
+      <div class="bar-track"><div id="bar"></div></div>
+      <div id="bar-warning"></div>
+    </div>
+
+  </div>
+
+  <p class="footer">Open in any browser — no internet needed.</p>
+</div>
+
+<script>
+const cats = [
+  { id: 'debt',      label: 'Debt repayment',   pct: 50, color: '#D85A30', note: 'Priority — pay off early' },
+  { id: 'emergency', label: 'Emergency fund',   pct: 20, color: '#EF9F27', note: 'Target: 3 months expenses' },
+  { id: 'house',     label: 'House renovation', pct: 10, color: '#D4537E', note: 'Near-term goal' },
+  { id: 'family',    label: 'Family (future)',  pct: 8,  color: '#1D9E75', note: 'Long horizon' },
+  { id: 'dream',     label: 'Dream (personal)', pct: 7,  color: '#7F77DD', note: 'Type R / Corolla RS' },
+  { id: 'leisure',   label: 'Leisure',          pct: 5,  color: '#378ADD', note: 'Enjoy the grind' },
+];
+
+function buildBreakdown() {
+  const container = document.getElementById('breakdown');
+  cats.forEach(cat => {
+    const card = document.createElement('div');
+    card.className = 'bcard';
+    card.style.borderLeftColor = cat.color;
+    card.innerHTML = `
+      <input type="checkbox" class="bcard-check" id="chk-${cat.id}" onchange="updateSelectedTotal()" />
+      <div class="bcard-info">
+        <div class="bcard-label">${cat.label}</div>
+        <div class="bcard-note">${cat.note}</div>
+      </div>
+      <div class="bcard-right">
+        <div class="bcard-amt" id="bamt-${cat.id}">₱0</div>
+        <div class="bcard-pct" id="bpct-${cat.id}">0%</div>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+function buildRows() {
+  const container = document.getElementById('rows');
+  cats.forEach(cat => {
+    const row = document.createElement('div');
+    row.className = 'row';
+    row.innerHTML = `
+      <div class="dot" style="background:${cat.color}"></div>
+      <div class="row-info">
+        <div class="row-label">${cat.label}</div>
+      </div>
+      <div class="pct-wrap">
+        <input class="pct-input" type="number" id="pct-${cat.id}" value="${cat.pct}" min="0" max="100" step="1" oninput="updatePct('${cat.id}',this.value)" />
+        <span class="pct-sign">%</span>
+      </div>
+      <div class="amt-col" id="amt-${cat.id}">₱0</div>
+    `;
+    container.appendChild(row);
+  });
+}
+
+function updatePct(id, val) {
+  const cat = cats.find(c => c.id === id);
+  cat.pct = parseInt(val) || 0;
+  recalc();
+}
+
+function updateSelectedTotal() {
+  const income = parseFloat(document.getElementById('income').value) || 0;
+  let total = 0;
+  cats.forEach(cat => {
+    const chk = document.getElementById('chk-' + cat.id);
+    if (chk && chk.checked) total += Math.round(income * cat.pct / 100);
+  });
+  document.getElementById('selected-total').textContent = '₱' + total.toLocaleString();
+}
+
+function recalc() {
+  const income = parseFloat(document.getElementById('income').value) || 0;
+  const sum = cats.reduce((a, c) => a + c.pct, 0);
+
+  cats.forEach(cat => {
+    const amt = Math.round(income * cat.pct / 100);
+    const amtEl  = document.getElementById('amt-'  + cat.id);
+    const bamtEl = document.getElementById('bamt-' + cat.id);
+    const bpctEl = document.getElementById('bpct-' + cat.id);
+    if (amtEl)  amtEl.textContent  = '₱' + amt.toLocaleString();
+    if (bamtEl) bamtEl.textContent = '₱' + amt.toLocaleString();
+    if (bpctEl) bpctEl.textContent = cat.pct + '%';
+  });
+
+  const totalEl = document.getElementById('total-pct');
+  const bar     = document.getElementById('bar');
+  const warn    = document.getElementById('bar-warning');
+
+  totalEl.textContent = sum + '%';
+  bar.style.width = Math.min(sum, 100) + '%';
+
+  if (sum === 100) {
+    bar.style.background = '#1D9E75';
+    totalEl.style.color  = '#1D9E75';
+    warn.style.display   = 'none';
+  } else if (sum < 100) {
+    bar.style.background = '#EF9F27';
+    totalEl.style.color  = '#BA7517';
+    warn.style.display   = 'block';
+    warn.style.color     = '#854F0B';
+    warn.textContent     = (100 - sum) + '% unallocated — adjust to reach 100%';
+  } else {
+    bar.style.background = '#E24B4A';
+    totalEl.style.color  = '#A32D2D';
+    warn.style.display   = 'block';
+    warn.style.color     = '#A32D2D';
+    warn.textContent     = 'Over by ' + (sum - 100) + '% — reduce a category';
+  }
+
+  updateSelectedTotal();
+}
+
+function toggleSettings() {
+  const body  = document.getElementById('settings-body');
+  const arrow = document.getElementById('arrow');
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  arrow.classList.toggle('open', !isOpen);
+}
+
+buildBreakdown();
+buildRows();
+recalc();
+</script>
+</body>
+</html>
